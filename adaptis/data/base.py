@@ -22,6 +22,7 @@ class BaseDataset(Dataset):
                  min_ignore_object_area=10,
                  keep_background_prob=0.0,
                  sample_ignore_object_prob=0.0,
+                 img_size=256,
                  epoch_len=-1):
         super(BaseDataset, self).__init__()
         self.items_per_epoch = epoch_len  # if > 0 samples "items per epoch" random elements every epoch
@@ -36,6 +37,7 @@ class BaseDataset(Dataset):
         # ignored_mask that is used to sample points from ignored areas for more robust training
         self.keep_background_prob = keep_background_prob  # prob. of keeping a crop with only background on it
         self.sample_ignore_object_prob = sample_ignore_object_prob  # prob. of sampling a point from ignored_mask
+        self.img_size = img_size
 
         if isinstance(self.get_image_scale, (float, int)):
             scale = self.get_image_scale
@@ -85,12 +87,13 @@ class BaseDataset(Dataset):
         return sample
 
     def _rescale_sample(self, sample):
-        if self.get_image_scale is None:
-            return sample
+        # if self.get_image_scale is None:
+        #     return sample
 
         image = sample['image']
-        scale = self.get_image_scale(image.shape)
-        image = cv2.resize(image, (0, 0), fx=scale, fy=scale)
+        # scale = self.get_image_scale(image.shape)
+        # image = cv2.resize(image, (0, 0), fx=scale, fy=scale)
+        image = cv2.resize(image, (self.img_size, self.img_size))
         new_size = (image.shape[1], image.shape[0])
 
         sample['image'] = image

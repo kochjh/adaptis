@@ -31,15 +31,20 @@ def init_model():
     num_classes = 6
 
     model_cfg.input_normalization = {
-        'mean': [0.5, 0.5, 0.5],
-        'std': [0.5, 0.5, 0.5]
+        'mean': [0.485, 0.456, 0.406],
+        'std': [0.229, 0.224, 0.225]
     }
 
     model_cfg.input_transform = transforms.Compose([
         transforms.ToTensor(),
+        transforms.Resize(256),
         transforms.Normalize(model_cfg.input_normalization['mean'],
                              model_cfg.input_normalization['std']),
     ])
+    # model_cfg.input_transform = transforms.Compose([
+    #     transforms.ToTensor(), 
+    #     DeepLabV3_ResNet50_Weights.DEFAULT.transforms
+    # ])
 
     # training using DataParallel is not implemented
     norm_layer = torch.nn.BatchNorm2d
@@ -85,8 +90,9 @@ def train(model, model_cfg, args, train_proposals, start_epoch=0):
         with_segmentation=True,
         points_from_one_object=train_proposals,
         input_transform=model_cfg.input_transform,
-        get_image_scale=0.2
+        # get_image_scale=0.2
     )
+
 
     valset = RobotecDataset(
         args.dataset_path,
@@ -96,7 +102,7 @@ def train(model, model_cfg, args, train_proposals, start_epoch=0):
         with_segmentation=True,
         points_from_one_object=train_proposals,
         input_transform=model_cfg.input_transform,
-        get_image_scale=0.2
+        # get_image_scale=0.2
     )
 
     optimizer_params = {

@@ -43,7 +43,7 @@ class AdaptIS(nn.Module):
     def forward(self, x, points):
         orig_size = x.size()[2:]
         outputs = []
-        backbone_features = self.backbone(x)
+        backbone_features = self.backbone(x)['out']
 
         # instances
         instance_out = self.adaptis_head(backbone_features, points)

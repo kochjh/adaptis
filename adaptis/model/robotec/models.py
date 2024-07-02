@@ -1,4 +1,5 @@
 import torch.nn as nn
+from torchvision.models.segmentation import deeplabv3_mobilenet_v3_large, DeepLabV3_MobileNet_V3_Large_Weights
 
 from adaptis.model import ops
 from adaptis.model.toy.unet import UNet
@@ -7,16 +8,15 @@ from adaptis.model import basic_blocks
 
 
 def get_unet_model(num_classes, channel_width=32, max_width=512, with_proposals=False, rescale_output=(0.2, -1.7), norm_layer=nn.BatchNorm2d):
-    unet = UNet(
-        num_blocks=4,
-        first_channels=channel_width,
-        max_width=max_width,
-        norm_layer=norm_layer
-    )
-    in_channels = unet.get_feature_channels()
+
+    backbone = deeplabv3_mobilenet_v3_large(weights=DeepLabV3_MobileNet_V3_Large_Weights.DEFAULT)
+    backbone.aux_classifier = nn.Identity()
+    backbone.classifier = nn.Identity()
+
+    in_channels = 960
 
     return AdaptIS(
-        backbone=unet,
+        backbone=backbone,
         adaptis_head=ToyAdaptISHead(
             basic_blocks.SimpleConvController(3, in_channels, channel_width, norm_layer=norm_layer),
             in_channels,

@@ -58,9 +58,14 @@ class SimpleConvController(nn.Module):
         _activation = ops.select_activation_function(activation)
 
         controller = []
-        for i in range(num_layers):
+        controller.extend([
+            nn.Conv2d(in_channels, latent_channels, kernel_size),
+                _activation(),
+                norm_layer(latent_channels) if norm_layer is not None else nn.Identity()
+        ])
+        for i in range(num_layers-1):
             controller.extend([
-                nn.Conv2d(in_channels, latent_channels, kernel_size),
+                nn.Conv2d(latent_channels, latent_channels, kernel_size),
                 _activation(),
                 norm_layer(latent_channels) if norm_layer is not None else nn.Identity()
             ])
