@@ -6,13 +6,18 @@ from easydict import EasyDict as edict
 from albumentations import Compose, Blur, Flip, GaussNoise
 
 from adaptis.engine.trainer import AdaptISTrainer
-from adaptis.model.toy.models import get_unet_model
+from adaptis.model.robotec.models import get_unet_model
 from adaptis.model.losses import NormalizedFocalLossSigmoid, NormalizedFocalLossSoftmax, AdaptISProposalsLossIoU
 from adaptis.model.metrics import AdaptiveIoU
 from adaptis.data.robotec import RobotecDataset
 from adaptis.utils import log
 from adaptis.model import initializer
 from adaptis.utils.exp import init_experiment
+
+
+#
+# python train_robotec.py --dataset-path ../custom_dataset/ --exp-name test1
+#
 
 
 def add_exp_args(parser):
@@ -22,6 +27,8 @@ def add_exp_args(parser):
 
 def init_model():
     model_cfg = edict()
+
+    num_classes = 6
 
     model_cfg.input_normalization = {
         'mean': [0.5, 0.5, 0.5],
@@ -37,7 +44,7 @@ def init_model():
     # training using DataParallel is not implemented
     norm_layer = torch.nn.BatchNorm2d
 
-    model = get_unet_model(norm_layer=norm_layer)
+    model = get_unet_model(num_classes=num_classes, norm_layer=norm_layer)
     model.apply(initializer.XavierGluon(rnd_type='gaussian', magnitude=1.0))
 
     return model, model_cfg
@@ -77,7 +84,8 @@ def train(model, model_cfg, args, train_proposals, start_epoch=0):
         augmentator=train_augmentator,
         with_segmentation=True,
         points_from_one_object=train_proposals,
-        input_transform=model_cfg.input_transform
+        input_transform=model_cfg.input_transform,
+        get_image_scale=0.2
     )
 
     valset = RobotecDataset(
@@ -87,7 +95,8 @@ def train(model, model_cfg, args, train_proposals, start_epoch=0):
         num_points=num_points,
         with_segmentation=True,
         points_from_one_object=train_proposals,
-        input_transform=model_cfg.input_transform
+        input_transform=model_cfg.input_transform,
+        get_image_scale=0.2
     )
 
     optimizer_params = {
@@ -106,8 +115,8 @@ def train(model, model_cfg, args, train_proposals, start_epoch=0):
                              num_epochs=num_epochs,
                              optimizer_params=optimizer_params,
                              lr_scheduler=lr_scheduler,
-                             checkpoint_interval=40 if not train_proposals else 5,
-                             image_dump_interval=600 if not train_proposals else -1,
+                             checkpoint_interval=50 if not train_proposals else 5,
+                             image_dump_interval=100 if not train_proposals else -1,
                              train_proposals=train_proposals,
                              metrics=[AdaptiveIoU()])
 
@@ -123,7 +132,7 @@ if __name__ == '__main__':
     torch.backends.cudnn.enabled = True
     torch.backends.cudnn.benchmark = True
 
-    args = init_experiment('toy', add_exp_args, script_path=__file__)
+    args = init_experiment('robotec', add_exp_args, script_path=__file__)
 
     model, model_cfg = init_model()
     train(model, model_cfg, args, train_proposals=False,

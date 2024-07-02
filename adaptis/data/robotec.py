@@ -34,8 +34,7 @@ class RobotecDataset(BaseDataset):
 
         if self.with_segmentation:
             # left digit: class id
-            segmentation_mask = mask // 10
-            segmentation_mask = (segmentation_mask > 0).astype(np.int32) # true or false, change later
+            segmentation_mask = (mask // 10).astype(np.int32)
             sample['semantic_segmentation'] = segmentation_mask
 
         # right digit: instance
@@ -59,4 +58,4 @@ class RobotecDataset(BaseDataset):
 
     @property
     def things_labels(self):
-        return [1] # [1, 2, 3, 4, 5]
+        return [1, 2, 3, 4, 5]
