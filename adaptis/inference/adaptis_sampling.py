@@ -247,7 +247,7 @@ def predict_instances_random(pmodel, features, instances_prob, ignore_mask, imag
     if ignore_mask is not None:
         instances_prob = instances_prob * (1 - ignore_mask)
 
-    result_map = np.full((output_height, output_width), -1, dtype=np.int)
+    result_map = np.full((output_height, output_width), -1, dtype=np.int32)
     result_map[instances_prob.max(axis=0) < ithresh] = 0
 
     last_color = 1
