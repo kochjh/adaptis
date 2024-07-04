@@ -15,7 +15,7 @@ Since AdaptIS implements panoptic segmentation for a single class but the custom
 training without proposal-head:
 | Parameter | Value |
 |-----------|------|
-|   image size  |    0.6 * 1536 = ?  |
+|   image size  |    0.6 * 1536 = 922  |
 |   epochs   |   60   |
 |   proposal points | 6 |
 | batch size | 1 |
@@ -23,7 +23,7 @@ training without proposal-head:
 following training with proposal-head:
 | Parameter | Value |
 |-----------|------|
-|   image size  |    0.6 * 1536 = ?  |
+|   image size  |    0.6 * 1536 = 922  |
 |   epochs   |   10  |
 |   proposal points | 20 |
 | batch size | 1 |
