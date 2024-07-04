@@ -40,13 +40,13 @@ class RobotecDataset(BaseDataset):
         # right digit: instance
         instance_mask = mask % 10
 
-        instances_ids = self.get_unique_labels(instance_mask, exclude_zero=True)
+        instances_ids = self.get_unique_labels(mask, exclude_zero=True)
         instances_info = {
-            x: {'class_id': 1, 'ignore': False}
+            x: {'class_id': x // 10, 'ignore': False}
             for x in instances_ids
         }
         sample.update({
-            'instances_mask': instance_mask,
+            'instances_mask': mask,
             'instances_info': instances_info,
         })
 
