@@ -56,14 +56,14 @@ def train(model, model_cfg, args, train_proposals, start_epoch=0):
     loss_cfg.instance_loss_weight = 1.0 if not train_proposals else 0.0
 
     if not train_proposals:
-        num_epochs = 160
-        num_points = 12
+        num_epochs = 60
+        num_points = 6
 
         loss_cfg.segmentation_loss = NormalizedFocalLossSoftmax(ignore_label=-1, gamma=1)
         loss_cfg.segmentation_loss_weight = 0.75
     else:
         num_epochs = 10
-        num_points = 32
+        num_points = 20
 
         loss_cfg.proposals_loss = AdaptISProposalsLossIoU(args.batch_size)
         loss_cfg.proposals_loss_weight = 1.0
@@ -85,7 +85,7 @@ def train(model, model_cfg, args, train_proposals, start_epoch=0):
         with_segmentation=True,
         points_from_one_object=train_proposals,
         input_transform=model_cfg.input_transform,
-        get_image_scale=0.2
+        get_image_scale=0.6
     )
 
     valset = RobotecDataset(
@@ -96,7 +96,7 @@ def train(model, model_cfg, args, train_proposals, start_epoch=0):
         with_segmentation=True,
         points_from_one_object=train_proposals,
         input_transform=model_cfg.input_transform,
-        get_image_scale=0.2
+        get_image_scale=0.6
     )
 
     optimizer_params = {
@@ -115,8 +115,8 @@ def train(model, model_cfg, args, train_proposals, start_epoch=0):
                              num_epochs=num_epochs,
                              optimizer_params=optimizer_params,
                              lr_scheduler=lr_scheduler,
-                             checkpoint_interval=50 if not train_proposals else 5,
-                             image_dump_interval=100 if not train_proposals else -1,
+                             checkpoint_interval=447 if not train_proposals else 5,
+                             image_dump_interval=447 if not train_proposals else -1, # every epoch
                              train_proposals=train_proposals,
                              metrics=[AdaptiveIoU()])
 
